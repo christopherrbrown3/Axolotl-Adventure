@@ -49,14 +49,10 @@ To put it on an iPad:
 
 ### Hosting
 
-The game is hosted on GitHub Pages. `.github/workflows/pages.yml` deploys it whenever `main` is pushed.
-One-time setup in **Settings → Pages**:
-
-- **Build and deployment → Source:** GitHub Actions
-- **Custom domain:** `axolotl.christopherbrown.ai`, then tick **Enforce HTTPS** once the certificate is ready
-
-The `CNAME` file records the domain. With Actions-based deploys, though, GitHub only uses the
-**Custom domain** setting. DNS uses a wildcard CNAME for `*.christopherbrown.ai` that points to GitHub.
+The game is hosted on GitHub Pages from the `gh-pages` branch. Don't edit that branch by hand:
+`.github/workflows/pages.yml` rebuilds it from `main` on every push. The `CNAME` file sets the
+custom domain, and DNS uses a wildcard CNAME for `*.christopherbrown.ai` that points to GitHub.
+Each deploy also gives the service worker a new cache name, so installed copies update themselves.
 
 ## Run it locally
 
@@ -75,7 +71,7 @@ on HTTPS or localhost, though, so offline mode needs the hosted version.
 index.html            page shell: HUD, d-pad, overlays, iOS PWA meta tags
 styles.css            touch-friendly layout using safe-area insets
 manifest.webmanifest  PWA manifest (fullscreen, landscape)
-sw.js                 offline cache (bump VERSION when files change)
+sw.js                 offline cache (renamed automatically on each deploy)
 js/main.js            boot, game loop, buttons, service worker registration
 js/game.js            game state: suction, damage, portal, smush, fireworks finale
 js/entities.js        player, fish/ducks/evil axolotls, piranha plants, pizza, portal
