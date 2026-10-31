@@ -37,18 +37,26 @@ You can hold SUCK with one finger and steer with another. On a computer, use the
 
 Tanks you've reached are unlocked on the title screen, and your color choice is saved.
 
-## Put it on an iPad
+## Play it
 
-1. Host the folder somewhere served over HTTPS (see GitHub Pages below).
-2. On the iPad, open the URL in **Safari**.
-3. Tap **Share**, then **Add to Home Screen**.
-4. Launch it from the home screen. It runs full screen in landscape and works offline.
+**https://axolotl.christopherbrown.ai**
 
-### GitHub Pages
+To put it on an iPad:
 
-`.github/workflows/pages.yml` deploys the game whenever `main` is pushed. One-time setup:
-**Settings → Pages → Build and deployment → Source: GitHub Actions**. The game will then be at
-`https://<user>.github.io/Axolotl-Adventure/`.
+1. Open the URL in **Safari**.
+2. Tap **Share**, then **Add to Home Screen**.
+3. Launch it from the home screen. It runs full screen in landscape and works offline.
+
+### Hosting
+
+The game is hosted on GitHub Pages. `.github/workflows/pages.yml` deploys it whenever `main` is pushed.
+One-time setup in **Settings → Pages**:
+
+- **Build and deployment → Source:** GitHub Actions
+- **Custom domain:** `axolotl.christopherbrown.ai`, then tick **Enforce HTTPS** once the certificate is ready
+
+The `CNAME` file records the domain. With Actions-based deploys, though, GitHub only uses the
+**Custom domain** setting. DNS uses a wildcard CNAME for `*.christopherbrown.ai` that points to GitHub.
 
 ## Run it locally
 
