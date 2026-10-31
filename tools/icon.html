@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Icon renderer</title></head>
+<body style="margin:0;background:#222">
+<script type="module">
+  // Renders the app icons from the game's own drawing code. Used by tools/make-icons.cjs.
+  import { PALETTES, drawFace } from '../js/draw.js';
+
+  function render(size, { maskable = false, rounded = false } = {}) {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const g = ctx.createLinearGradient(0, 0, 0, size);
+    g.addColorStop(0, '#45d0e0');
+    g.addColorStop(1, '#0b5a86');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = 'rgba(255,255,255,0.35)';
+    for (const [x, y, r] of [[0.18, 0.78, 0.035], [0.24, 0.66, 0.022], [0.82, 0.3, 0.03], [0.86, 0.2, 0.018]]) {
+      ctx.beginPath(); ctx.arc(x * size, y * size, r * size, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = '#ecd49a';
+    ctx.beginPath();
+    ctx.moveTo(0, size * 0.86);
+    ctx.quadraticCurveTo(size * 0.5, size * 0.78, size, size * 0.88);
+    ctx.lineTo(size, size); ctx.lineTo(0, size); ctx.fill();
+    const scale = (maskable ? 0.0062 : 0.0082) * size;
+    drawFace(ctx, size / 2, size * 0.5, scale, PALETTES.pink);
+    return c.toDataURL('image/png');
+  }
+
+  window.icons = {
+    'icon-192.png': render(192),
+    'icon-512.png': render(512),
+    'maskable-512.png': render(512, { maskable: true }),
+    'apple-touch-icon.png': render(180),
+  };
+  document.title = 'ready';
+</script>
+</body>
+</html>
