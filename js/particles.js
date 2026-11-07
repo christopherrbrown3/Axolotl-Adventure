@@ -1,6 +1,7 @@
 // Lightweight particle system: bubbles, suction streaks, sparks/fireworks, hearts, text.
 import { SURFACE_Y, rand } from './world.js';
 import { ell, sparkle, TAU } from './draw.js';
+import { drawSoapBubble } from './art.js';
 
 const MAX = 450;
 const FONT = '"Chalkboard SE", "Comic Sans MS", "Baloo 2", sans-serif';
@@ -71,6 +72,11 @@ export function updateParticles(list, dt, mouth) {
         case 'text': p.y -= 45 * dt; break;
         case 'ring': p.r += 260 * dt; break;
         case 'sand': p.vy += 400 * dt; p.x += p.vx * dt; p.y += p.vy * dt; break;
+        case 'soap':
+          p.x += Math.sin(p.life * 1.5 + p.ph) * 20 * dt;
+          p.y += p.vy * dt;
+          if (p.y < SURFACE_Y + p.r) p.life = 0;
+          break;
       }
     }
     if (p.life > 0) list[j++] = p;
@@ -126,6 +132,9 @@ export function drawParticles(ctx, list, x0, x1) {
         break;
       case 'sand':
         ctx.fillStyle = p.c; ell(ctx, p.x, p.y, p.r, p.r); ctx.fill();
+        break;
+      case 'soap':
+        drawSoapBubble(ctx, p.x, p.y, p.r, p.life);
         break;
     }
   }

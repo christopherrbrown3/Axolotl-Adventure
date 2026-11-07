@@ -216,6 +216,14 @@ export function drawForeground(ctx, sc, camX, viewW, t) {
     for (let x = start; x <= tx1 + 16; x += 16) ctx.lineTo(x, SURFACE_Y - 2 + Math.sin(x * 0.025 + t * 2.2) * 3);
     for (let x = tx1 + 16; x >= start; x -= 16) ctx.lineTo(x, SURFACE_Y + 6 + Math.sin(x * 0.025 + t * 2.2 + 0.8) * 3);
     ctx.closePath(); ctx.fill();
+    if (sc.theme.suds) { // bubble-bath foam along the top of the water
+      ctx.fillStyle = 'rgba(255,255,255,0.88)';
+      for (let x = Math.floor(tx0 / 26) * 26; x <= tx1 + 26; x += 26) {
+        const h = Math.abs(Math.sin(x * 12.9898) * 43758.5453) % 1;
+        const r = 7 + h * 9;
+        ell(ctx, x + h * 10, SURFACE_Y - 1 + Math.sin(t * 1.5 + x) * 1.5, r, r * 0.65); ctx.fill();
+      }
+    }
   }
   // glass walls and frame
   ctx.fillStyle = 'rgba(190,235,255,0.55)';

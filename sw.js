@@ -18,6 +18,7 @@ const ASSETS = [
   'js/scene.js',
   'js/entities.js',
   'js/boss.js',
+  'js/ducks.js',
   'js/particles.js',
   'icons/icon-192.png',
   'icons/icon-512.png',

@@ -6,6 +6,7 @@ import { PALETTES, EVIL_PALETTE, drawAxolotl } from './draw.js';
 import { FISH_LOOKS, drawFish, drawDuck } from './art.js';
 import { Player, Creature, Plant, Pizza, Portal } from './entities.js';
 import { Hand } from './boss.js';
+import { spawnDucks } from './ducks.js';
 import * as FX from './particles.js';
 import { sfx, music } from './audio.js';
 
@@ -59,7 +60,7 @@ export class Game {
     }
     this.total = this.creatures.length;
     this.camX = 0; this.modeT = 0; this.suckOn = false; this.handSucked = false;
-    this.streakAcc = 0; this.bubbleAcc = 0; this.fading = false;
+    this.streakAcc = 0; this.bubbleAcc = 0; this.soapT = 0; this.fading = false;
     this.mode = demo ? 'title' : 'play';
     if (!demo) {
       this.ui.startLevel(i, L);
@@ -72,6 +73,7 @@ export class Game {
   spawnCreatures(L) {
     const W = this.W;
     for (const [kind, n] of Object.entries(L.creatures || {})) {
+      if (kind === 'duck') { this.creatures.push(...spawnDucks(W, n)); continue; }
       for (let i = 0; i < n; i++) {
         const u = (i + 0.5) / n;
         let x = 450 + u * (W - 800) + rand(-60, 60), y = rand(170, 520), look = null;
@@ -82,8 +84,6 @@ export class Game {
           look = FISH_LOOKS.fish[i % FISH_LOOKS.fish.length];
         } else if (kind === 'evil') {
           y = rand(220, 540);
-        } else if (kind === 'duck') {
-          y = SURFACE_Y - 4;
         }
         this.creatures.push(new Creature(kind, x, y, look));
       }
@@ -190,7 +190,8 @@ export class Game {
     if (c.kind === 'duck') sfx.squeak(); else sfx.gulp();
     if (p.predator) sfx.bite();
     FX.bubbles(this.particles, m.x, m.y, 5, 8);
-    FX.text(this.particles, m.x, m.y - 44, c.kind === 'duck' ? 'Squeak!' : p.predator ? 'CHOMP!' : 'Gulp!', '#fff', 26);
+    const word = c.mode === 'mama' ? 'QUACK!' : c.kind === 'duck' ? 'Squeak!' : p.predator ? 'CHOMP!' : 'Gulp!';
+    FX.text(this.particles, m.x, m.y - 44, word, '#fff', 26);
     this.updateHud();
     const left = this.remaining();
     if (left === 0 && this.portal) {
@@ -366,7 +367,7 @@ export class Game {
       f.t += dt; f.vy += 260 * dt; f.x += f.vx * dt; f.y += f.vy * dt;
       if (f.y < f.target || f.vy > -40) {
         f.dead = true;
-        const base = f.kind === 'duck' ? '#ffd93b' : f.kind === 'evil' ? '#c77dff' : f.look ? f.look.color : '#ffffff';
+        const base = f.kind === 'duck' ? (f.look ? f.look.body : '#ffd93b') : f.kind === 'evil' ? '#c77dff' : f.look ? f.look.color : '#ffffff';
         FX.firework(this.fireworks, f.x, f.y, [base, BRIGHT[(Math.random() * BRIGHT.length) | 0], '#ffffff']);
         sfx.pop();
       }
@@ -406,9 +407,29 @@ export class Game {
         FX.add(this.particles, { type: 'bubble', x: b.x + rand(-4, 4), y: floorAt(b.x) - 10, vx: rand(-8, 8), vy: rand(-80, -40), r: rand(2, 5), life: 6, ph: rand(0, 6) });
       }
     }
+    if (this.scene.theme.soap && this.mode !== 'win') this.soapBubbles(dt);
     if (Math.random() < dt * 0.5 && (this.mode === 'play' || this.mode === 'title')) {
       const m = this.player.mouthPos();
       FX.bubbles(this.particles, m.x, m.y - 6, 2, 3);
+    }
+  }
+
+  // Bath tank: rainbow soap bubbles drift up from the sand and pop when you touch them.
+  soapBubbles(dt) {
+    this.soapT -= dt;
+    if (this.soapT <= 0) {
+      this.soapT = rand(0.5, 1.1);
+      const x = this.camX + rand(40, this.viewW - 40);
+      FX.add(this.particles, { type: 'soap', x, y: floorAt(x) - 6, vy: rand(-45, -25), r: rand(9, 20), life: 30, ph: rand(0, 6) });
+    }
+    if (this.mode !== 'play') return;
+    const p = this.player, pr = 26 * p.scale;
+    for (const b of this.particles) {
+      if (b.type !== 'soap' || b.life <= 0 || Math.hypot(b.x - p.x, b.y - p.y) > b.r + pr) continue;
+      b.life = 0;
+      FX.add(this.particles, { type: 'ring', x: b.x, y: b.y, r: b.r, life: 0.25, max: 0.25, c: 'rgba(255,255,255,0.85)' });
+      FX.sparks(this.particles, b.x, b.y, 5, '#ffffff', 120);
+      sfx.blip();
     }
   }
 
@@ -455,7 +476,7 @@ export class Game {
     const a = Math.atan2(f.vy, f.vx);
     ctx.save();
     ctx.translate(f.x, f.y);
-    if (f.kind === 'duck') { ctx.rotate(f.t * 6); drawDuck(ctx, 0, 0, f.t, 1, 0.8); }
+    if (f.kind === 'duck') { ctx.rotate(f.t * 6); drawDuck(ctx, 0, 0, f.t, 1, 0.8, f.look); }
     else if (f.kind === 'evil') drawAxolotl(ctx, 0, 0, { palette: EVIL_PALETTE, evil: true, t: f.t, scale: 0.6, facing: 1, tilt: a, swim: 1 });
     else { ctx.rotate(a); drawFish(ctx, 0, 0, f.look, f.t * 2, 1); }
     ctx.restore();

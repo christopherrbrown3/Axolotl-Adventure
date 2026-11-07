@@ -26,7 +26,7 @@ export const THEMES = {
     pebbles: ['#ffb3c8', '#b3e5ff', '#fff2a8', '#c9f7c4'],
     weed: ['#5fd1ad', '#47b896', '#7de3c0'], far: 'rgba(40,130,170,0.25)',
     room: '#fff4f8', room2: '#ffe1ec', rays: 'rgba(255,255,255,0.16)',
-    decor: ['starfish', 'shell', 'shell', 'rock', 'bubbler', 'sponge'], music: 5,
+    decor: ['starfish', 'shell', 'shell', 'rock', 'bubbler', 'sponge'], music: 5, suds: true, soap: true,
   },
   room: {
     top: '#5fd0c0', bottom: '#11606a', sand: '#f1d9a3', sand2: '#dcbf82',
@@ -51,8 +51,8 @@ export const LEVELS = [
     creatures: { evil: 6 }, plants: [1000, 1900, 2600], plantSpeed: 1, plantReach: 280, shapeshift: true, seed: 303,
   },
   {
-    name: 'Rubber Ducky Bath', goal: 'Swim to the top and suck down the rubber duckies!', theme: 'bath', width: 3000,
-    creatures: { duck: 8 }, plants: [650, 1150, 1650, 2150, 2550], plantSpeed: 1.1, plantReach: 320, seed: 404,
+    name: 'Rubber Ducky Bath', goal: 'Catch the duck family, the hopping duckies, and the ducks in bubbles!', theme: 'bath', width: 3000,
+    creatures: { duck: 9 }, plants: [650, 1150, 1650, 2150, 2550], plantSpeed: 1.1, plantReach: 320, seed: 404,
   },
   {
     name: 'The Giant Hand', goal: 'When the hand lands, SUCK it! Do it 5 times!', theme: 'room', width: 1500,

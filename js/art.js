@@ -96,13 +96,23 @@ export function drawFish(ctx, x, y, f, t, facing) {
   ctx.restore();
 }
 
-export function drawDuck(ctx, x, y, t, facing, scale = 1) {
+export const DUCK_LOOKS = {
+  yellow: { body: '#ffd93b', wing: '#f5c400', edge: '#e0a800' },
+  pink: { body: '#ff9ec4', wing: '#ff7fb0', edge: '#e0628f' },
+  blue: { body: '#7cc7ff', wing: '#4fb0f5', edge: '#3a8fd0' },
+  green: { body: '#8fe08f', wing: '#66c866', edge: '#46a846' },
+  purple: { body: '#c9a3ff', wing: '#b083f5', edge: '#9064d8' },
+  orange: { body: '#ffb35c', wing: '#ff9b2e', edge: '#e07d10' },
+};
+
+export function drawDuck(ctx, x, y, t, facing, scale = 1, look = DUCK_LOOKS.yellow) {
+  const L = look || DUCK_LOOKS.yellow;
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(facing * scale, scale);
   ctx.rotate(Math.sin(t * 2) * 0.08);
-  ctx.fillStyle = '#ffd93b';
-  ctx.strokeStyle = '#e0a800';
+  ctx.fillStyle = L.body;
+  ctx.strokeStyle = L.edge;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(-30, -4);
@@ -117,9 +127,25 @@ export function drawDuck(ctx, x, y, t, facing, scale = 1) {
   ctx.strokeStyle = '#d96a00'; ctx.beginPath(); ctx.moveTo(22, -19); ctx.lineTo(36, -19); ctx.stroke();
   ell(ctx, 18, -26, 2.8, 3.2); ctx.fillStyle = '#1a1a1a'; ctx.fill();
   ell(ctx, 19, -27, 1, 1); ctx.fillStyle = '#fff'; ctx.fill();
-  ell(ctx, -4, 3, 13, 8, -0.2); ctx.fillStyle = '#f5c400'; ctx.fill();
+  ell(ctx, -4, 3, 13, 8, -0.2); ctx.fillStyle = L.wing; ctx.fill();
   ell(ctx, 13, -16, 4, 2.5); ctx.fillStyle = 'rgba(255,120,90,0.45)'; ctx.fill();
   ctx.restore();
+}
+
+/** A see-through rainbow soap bubble. */
+export function drawSoapBubble(ctx, x, y, r, t) {
+  if (r < 1) return;
+  const g = ctx.createRadialGradient(x - r * 0.3, y - r * 0.3, r * 0.1, x, y, r);
+  g.addColorStop(0, 'rgba(255,255,255,0.04)');
+  g.addColorStop(0.75, 'rgba(200,240,255,0.10)');
+  g.addColorStop(1, 'rgba(255,190,240,0.38)');
+  ctx.fillStyle = g;
+  ell(ctx, x, y, r, r); ctx.fill();
+  ctx.strokeStyle = `hsla(${(t * 80 + x) % 360}, 90%, 82%, 0.75)`;
+  ctx.lineWidth = Math.max(1.2, r * 0.06);
+  ctx.stroke();
+  ell(ctx, x - r * 0.35, y - r * 0.42, r * 0.24, r * 0.12, -0.6);
+  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.fill();
 }
 
 export function drawPizza(ctx, x, y, t) {

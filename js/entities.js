@@ -1,7 +1,7 @@
 // Player, creatures, piranha plants, magic pizza and the portal.
 import { SURFACE_Y, floorAt, clamp, approach, lerp, rand } from './world.js';
 import { TAU, drawAxolotl, EVIL_PALETTE } from './draw.js';
-import { drawFish, drawDuck, drawPizza, drawPlant, drawPortal, drawShark, SHARK_MOUTH } from './art.js';
+import { drawFish, drawPizza, drawPlant, drawPortal, drawShark, SHARK_MOUTH } from './art.js';
 import * as FX from './particles.js';
 
 export class Player {
@@ -105,17 +105,7 @@ export class Creature {
     const p = game.player, alive = game.mode === 'play';
     const k = 1 - Math.exp(-3 * dt);
     this.chasing = false;
-    if (this.kind === 'duck') {
-      if (!this.sucked) {
-        const floatY = SURFACE_Y - 4 + Math.sin(this.t * 2) * 2.5;
-        if (this.x < 140) this.facing = 1;
-        else if (this.x > game.W - 220) this.facing = -1;
-        else if (Math.random() < dt * 0.12) this.facing *= -1;
-        this.vx += (this.facing * this.speed - this.vx) * k;
-        this.vy += (floatY - this.y) * 10 * dt;
-        this.vy *= Math.exp(-4 * dt);
-      }
-    } else if (!this.sucked) {
+    if (!this.sucked) {
       this.wt -= dt;
       if (this.wt <= 0 || Math.hypot(this.tx - this.x, this.ty - this.y) < 24) {
         this.wt = this.wander + Math.random() * 2;
@@ -141,9 +131,7 @@ export class Creature {
       this.vy += (dvy - this.vy) * k;
     }
     this.x = clamp(this.x + this.vx * dt, 50, game.W - 50);
-    this.y += this.vy * dt;
-    if (this.kind === 'duck') this.y = clamp(this.y, SURFACE_Y - 12, floorAt(this.x) - this.r);
-    else this.y = clamp(this.y, SURFACE_Y + this.r + 6, floorAt(this.x) - this.r - 4);
+    this.y = clamp(this.y + this.vy * dt, SURFACE_Y + this.r + 6, floorAt(this.x) - this.r - 4);
     if (!this.sucked && Math.abs(this.vx) > 6) this.facing = Math.sign(this.vx);
     this.pull = approach(this.pull, this.sucked ? 1 : 0, 6, dt);
   }
@@ -162,19 +150,20 @@ export class Creature {
       ctx.translate(-x, -y);
     }
     const facing = this.sucked && mouth ? (this.x < mouth.x ? -1 : 1) : this.facing;
-    const tt = this.t * (this.sucked ? 2 : 1);
+    this.drawBody(ctx, x, y, facing, this.t * (this.sucked ? 2 : 1));
+    ctx.restore();
+  }
+
+  drawBody(ctx, x, y, facing, tt) {
     if (this.kind === 'evil') {
       drawAxolotl(ctx, x, y, {
         palette: EVIL_PALETTE, evil: true, t: tt, scale: 0.82, facing,
         swim: this.chasing ? 0.9 : 0.5, tilt: clamp(this.vy / 300, -0.4, 0.4),
         mouth: this.chasing ? 0.45 + 0.35 * Math.sin(this.t * 10) : this.sucked ? 0.8 : 0,
       });
-    } else if (this.kind === 'duck') {
-      drawDuck(ctx, x, y, tt, facing);
     } else {
       drawFish(ctx, x, y, this.look, tt, facing);
     }
-    ctx.restore();
   }
 }
 

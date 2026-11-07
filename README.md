@@ -30,7 +30,10 @@ You can hold SUCK with one finger and steer with another. On a computer, use the
 2. **Big Fish Reef**: big fish that wriggle and fight the suction.
 3. **Evil Axolotl Cave**: evil axolotls chase and bite you. They're too strong to suck, so tap
    **Shark** to turn into a shark. Now they run away scared, and you can chomp them up.
-4. **Rubber Ducky Bath**: rubber duckies float on the surface. Swim to the top and suck them down.
+4. **Rubber Ducky Bath**: a bubble bath full of rubber duckies. A mama duck paddles along the top with her
+   ducklings in a line behind her (she hurries away when you get close). Pink and blue duckies hop out
+   of the water when you sneak up under them, and more ducks rise up from the sand inside soap bubbles.
+   Pull a duck underwater and let go, and it shoots back up with a splash.
 5. **The Giant Hand**: a kid's hand reaches into the tank and slams down. If it smushes you, it picks
    you up and drops you back in. When it lands on the sand, suck it! The hand yanks out and yells
    **"OW!"**. Do that 5 times to win, and you spit out every critter you ate as fireworks.

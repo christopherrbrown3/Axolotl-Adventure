@@ -127,6 +127,8 @@ export const sfx = {
   },
   win() { [523, 659, 784, 1047, 784, 1047].forEach((f, i) => tone(f, i === 5 ? 0.6 : 0.18, { type: 'square', delay: i * 0.13, vol: 0.09 })); },
   tap() { tone(700, 0.06, { vol: 0.12 }); },
+  blip() { tone(900, 0.07, { slideTo: 1600, vol: 0.12 }); noise(0.05, { filter: 'highpass', freq: 3000, vol: 0.06 }); },
+  plop() { tone(500, 0.12, { slideTo: 180, vol: 0.18 }); noise(0.18, { filter: 'bandpass', freq: 900, slideTo: 400, vol: 0.15 }); },
   color() { tone(880, 0.08, { vol: 0.12 }); tone(1320, 0.1, { delay: 0.06, vol: 0.12 }); },
 };
 
