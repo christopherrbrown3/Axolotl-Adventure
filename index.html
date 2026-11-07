@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Axolotl Adventure</title>
+  <meta name="description" content="Swim through 5 magic fish tanks, suck up all the fish, and beat the giant hand!">
+  <meta name="theme-color" content="#0b3d5c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Axolotl">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="hud" class="hidden">
+    <div id="hud-left">
+      <div id="health" class="pill">
+        <span class="heart">❤</span>
+        <div id="health-bar"><div id="health-fill"></div></div>
+      </div>
+    </div>
+    <div id="hud-center" class="pill">
+      <div id="level-name"></div>
+      <div id="counter"><span id="counter-icon"></span><span id="counter-text"></span></div>
+    </div>
+    <div id="hud-right">
+      <div id="colors" class="colors"></div>
+      <button id="btn-pause" class="round-btn" aria-label="Pause">❚❚</button>
+    </div>
+  </div>
+
+  <div id="controls" class="hidden">
+    <div id="dpad" aria-label="Direction pad with suck button">
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="98" class="pad-bg"/>
+        <rect class="arm up" x="68" y="6" width="64" height="64" rx="16"/>
+        <rect class="arm down" x="68" y="130" width="64" height="64" rx="16"/>
+        <rect class="arm left" x="6" y="68" width="64" height="64" rx="16"/>
+        <rect class="arm right" x="130" y="68" width="64" height="64" rx="16"/>
+        <path class="tri" d="M100 18 L120 46 L80 46 Z"/>
+        <path class="tri" d="M100 182 L120 154 L80 154 Z"/>
+        <path class="tri" d="M18 100 L46 80 L46 120 Z"/>
+        <path class="tri" d="M182 100 L154 80 L154 120 Z"/>
+        <circle class="suck" cx="100" cy="100" r="40"/>
+        <ellipse class="suck-mouth" cx="100" cy="92" rx="11" ry="13"/>
+        <text class="suck-label" x="100" y="124" text-anchor="middle">SUCK</text>
+      </svg>
+    </div>
+    <button id="shift-btn" class="hidden" aria-label="Turn into a shark"><span class="shift-icon"></span><span class="shift-label">Shark</span></button>
+  </div>
+
+  <div id="levelcard" class="hidden">
+    <div class="lc-num"></div>
+    <div class="lc-name"></div>
+    <div class="lc-goal"></div>
+  </div>
+  <div id="toast" class="hidden"></div>
+  <div id="fade"></div>
+
+  <div id="title" class="overlay">
+    <h1 class="title">Axolotl<br>Adventure</h1>
+    <div class="subtitle">Pick your axolotl!</div>
+    <div id="title-colors" class="colors big"></div>
+    <button id="btn-play" class="big-btn">▶ Play</button>
+    <div class="tanks-wrap"><span class="tanks-label">Tanks:</span><div id="tanks" class="tanks"></div></div>
+    <div id="install-hint" class="hint hidden">Tip: tap the Share button, then “Add to Home Screen” to play full screen!</div>
+  </div>
+
+  <div id="pause" class="overlay hidden">
+    <h2 class="title small">Paused</h2>
+    <button id="btn-resume" class="big-btn">▶ Keep Playing</button>
+    <div class="row">
+      <button id="btn-restart" class="mid-btn">↻ Restart Tank</button>
+      <button id="btn-home" class="mid-btn">⌂ Home</button>
+      <button id="btn-mute" class="mid-btn">🔊 Sound On</button>
+    </div>
+  </div>
+
+  <div id="win" class="overlay clear hidden">
+    <h2 class="title">You Win!</h2>
+    <div id="win-text" class="subtitle"></div>
+    <div class="row">
+      <button id="btn-again" class="big-btn">↻ Play Again</button>
+      <button id="btn-win-home" class="mid-btn">⌂ Home</button>
+    </div>
+  </div>
+
+  <div id="rotate" class="overlay">
+    <div class="rot-icon">↻</div>
+    <div class="subtitle">Turn your iPad sideways to play!</div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
