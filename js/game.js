@@ -157,7 +157,7 @@ export class Game {
       if (d > range || (dot < 0.5 && d > 80)) { c.sucked = false; continue; }
       if (c.kind === 'evil' && !p.predator) {
         c.sucked = false; c.shake = 0.25;
-        this.hint('evil', 'Too strong! Tap PREDATOR to shape shift!');
+        this.hint('evil', 'Too strong! Tap SHARK to turn into a shark!');
         this.ui.pulseShift(true);
         continue;
       }
@@ -188,8 +188,9 @@ export class Game {
     p.gulp = 1;
     this.eatenLevel.push({ kind: c.kind, look: c.look });
     if (c.kind === 'duck') sfx.squeak(); else sfx.gulp();
+    if (p.predator) sfx.bite();
     FX.bubbles(this.particles, m.x, m.y, 5, 8);
-    FX.text(this.particles, m.x, m.y - 44, c.kind === 'duck' ? 'Squeak!' : 'Gulp!', '#fff', 26);
+    FX.text(this.particles, m.x, m.y - 44, c.kind === 'duck' ? 'Squeak!' : p.predator ? 'CHOMP!' : 'Gulp!', '#fff', 26);
     this.updateHud();
     const left = this.remaining();
     if (left === 0 && this.portal) {
@@ -251,6 +252,7 @@ export class Game {
 
   die() {
     this.mode = 'dying'; this.modeT = 0;
+    if (this.player.predator) { this.player.predator = false; this.ui.setShiftActive(false); }
     sfx.die();
     this.ui.toast('Oh no! Try again!', 2.2);
   }
@@ -286,13 +288,14 @@ export class Game {
   toggleShift() {
     if (!this.level.shapeshift || this.mode !== 'play') return;
     const p = this.player;
-    p.predator = !p.predator;
+    p.setShark(!p.predator);
     sfx.shift(p.predator);
-    FX.sparks(this.particles, p.x, p.y, 24, p.predator ? '#ff4d6d' : '#ffffff', 260);
-    FX.text(this.particles, p.x, p.y - 70, p.predator ? 'PREDATOR!' : 'Cute again!', p.predator ? '#ff6b6b' : '#fff', 30);
+    FX.bubbles(this.particles, p.x, p.y, 22, 50);
+    FX.sparks(this.particles, p.x, p.y, 20, p.predator ? '#bfe3ff' : '#ffffff', 260);
+    FX.text(this.particles, p.x, p.y - 84, p.predator ? 'SHARK!' : 'Axolotl again!', p.predator ? '#bfe3ff' : '#fff', 32);
     this.ui.setShiftActive(p.predator);
     this.ui.pulseShift(false);
-    if (p.predator) this.hint('pred', 'You are a PREDATOR! Suck up the evil axolotls!', 2.5);
+    if (p.predator) this.hint('pred', 'You are a SHARK! The evil axolotls are scared of you!', 2.5);
   }
 
   // ---------- tank 5 ----------

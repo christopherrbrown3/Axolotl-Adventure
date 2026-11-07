@@ -103,14 +103,13 @@ function leg(ctx, x, y, ang, col, outline) {
 
 /**
  * Side-view axolotl, facing right in local space (head at +x).
- * o: { palette, t, scale, facing, tilt, swim(0..1), mouth(0..1 open), predator(0..1),
+ * o: { palette, t, scale, facing, tilt, swim(0..1), mouth(0..1 open),
  *      evil, gulp(0..1), blink(0..1), squash(0..1), bellyUp }
  */
 export function drawAxolotl(ctx, x, y, o) {
   const P = o.palette, t = o.t || 0, s = o.scale || 1;
   const swim = clamp(o.swim ?? 0.3, 0, 1);
   const mouth = o.mouth || 0;
-  const pred = o.predator || 0;
   const evil = !!o.evil;
   ctx.save();
   ctx.translate(x, y);
@@ -123,7 +122,7 @@ export function drawAxolotl(ctx, x, y, o) {
   const freq = 3 + swim * 9;
   const amp = 0.35 + swim * 0.85;
   const puff = mouth * (3 + Math.sin(t * 38));
-  const flare = mouth * 0.35 + pred * 0.12;
+  const flare = mouth * 0.35;
   const gt = t * (2.5 + swim * 4);
   const legSw = 0.35 + swim * 0.65;
   const lp = t * freq * 0.7;
@@ -134,21 +133,6 @@ export function drawAxolotl(ctx, x, y, o) {
   }
   leg(ctx, 22, 14, 0.4 + swim * 0.4 + Math.sin(lp + 1.6) * 0.5 * legSw, P.dark);
   leg(ctx, -22, 14, 0.5 + swim * 0.4 + Math.sin(lp + 3.2) * 0.5 * legSw, P.dark);
-
-  // predator back spikes
-  if (pred > 0.01) {
-    ctx.fillStyle = P.dark;
-    ctx.beginPath();
-    for (let i = 0; i < 7; i++) {
-      const px = 22 - i * 11;
-      const ex = (px + 8) / 40;
-      const topY = 4 - 19 * Math.sqrt(Math.max(0, 1 - ex * ex));
-      ctx.moveTo(px - 6, topY + 5);
-      ctx.lineTo(px - 3, topY - 14 * pred);
-      ctx.lineTo(px + 5, topY + 5);
-    }
-    ctx.fill();
-  }
 
   // tail + crest fin (undulating)
   const N = 18, top = [], bot = [], ftop = [], fbot = [];
@@ -161,7 +145,7 @@ export function drawAxolotl(ctx, x, y, o) {
     const bodyHalf = Math.abs(ex) < 1 ? 19 * Math.sqrt(1 - ex * ex) : 0;
     const half = Math.max(bodyHalf, px < -24 ? 12 * (1 - w) + 1.2 : 0);
     const fadeIn = clamp((6 - px) / 16, 0, 1);
-    const eTop = ((3 + 9 * Math.sin(w * Math.PI)) * (1 - w * w * 0.75) + pred * 2) * fadeIn;
+    const eTop = ((3 + 9 * Math.sin(w * Math.PI)) * (1 - w * w * 0.75)) * fadeIn;
     const eBot = 8 * Math.sin(w * Math.PI) * (1 - w * 0.4);
     top.push(px, py - half); bot.push(px, py + half);
     ftop.push(px, py - half - eTop); fbot.push(px, py + half + eBot);
@@ -174,15 +158,6 @@ export function drawAxolotl(ctx, x, y, o) {
   ctx.save();
   ell(ctx, -8, 4, 40, 19); ctx.clip();
   ell(ctx, -6, 19, 40, 10); ctx.fillStyle = P.belly; ctx.fill();
-  if (pred > 0.01) {
-    ctx.fillStyle = `rgba(0,0,0,${0.25 * pred})`;
-    for (let k = 0; k < 3; k++) {
-      ctx.beginPath();
-      ctx.moveTo(-34 + k * 17, -16); ctx.lineTo(-26 + k * 17, -16);
-      ctx.lineTo(-32 + k * 17, 8); ctx.lineTo(-40 + k * 17, 8);
-      ctx.fill();
-    }
-  }
   ctx.restore();
   if (o.gulp > 0.01) { ell(ctx, -4, 13, 14 + 8 * o.gulp, 6 + 9 * o.gulp); ctx.fillStyle = P.belly; ctx.fill(); }
 
@@ -218,19 +193,18 @@ export function drawAxolotl(ctx, x, y, o) {
     if (evil) { ell(ctx, eyeX + 0.6, eyeY, 3, 3); ctx.fillStyle = '#ff2b2b'; ctx.fill(); }
     ell(ctx, eyeX + 1.6, eyeY - 1.8, 1.9, 1.9); ctx.fillStyle = '#fff'; ctx.fill();
   }
-  if (evil || pred > 0.5) {
-    ctx.strokeStyle = evil ? '#1a0820' : P.dark; ctx.lineWidth = 3.4; ctx.lineCap = 'round';
+  if (evil) {
+    ctx.strokeStyle = '#1a0820'; ctx.lineWidth = 3.4; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(eyeX - 8, eyeY - 11); ctx.lineTo(eyeX + 6, eyeY - 6); ctx.stroke();
   }
 
   // mouth
-  const toothy = evil || pred > 0.5;
   if (mouth > 0.05) {
     const mx = 61 + puff * 0.6, my = 7, mr = 2 + mouth * 8;
     ell(ctx, mx, my, mr * 0.75, mr); ctx.fillStyle = '#4a0c1d'; ctx.fill();
     ctx.lineWidth = 2.2; ctx.strokeStyle = P.dark; ctx.stroke();
     ell(ctx, mx, my + mr * 0.45, mr * 0.45, mr * 0.3); ctx.fillStyle = '#ff7b9c'; ctx.fill();
-    if (toothy) {
+    if (evil) {
       ctx.fillStyle = '#fff';
       ctx.beginPath();
       ctx.moveTo(mx - mr * 0.5, my - mr * 0.75); ctx.lineTo(mx - mr * 0.2, my - mr * 0.75); ctx.lineTo(mx - mr * 0.35, my - mr * 0.25);
@@ -240,7 +214,7 @@ export function drawAxolotl(ctx, x, y, o) {
   } else {
     ctx.strokeStyle = P.dark; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(47, 10); ctx.quadraticCurveTo(55, 15, 63, 6); ctx.stroke();
-    if (toothy) {
+    if (evil) {
       ctx.fillStyle = '#fff';
       ctx.beginPath();
       ctx.moveTo(52, 12.4); ctx.lineTo(55.5, 12.6); ctx.lineTo(53.8, 17.5);
@@ -282,13 +256,13 @@ export function drawFace(ctx, cx, cy, s, P, o = {}) {
     ell(ctx, ex + 1.8, -4, 2, 2); ctx.fillStyle = '#fff'; ctx.fill();
   }
   ctx.lineCap = 'round';
-  if (o.predator || o.evil) {
+  if (o.evil) {
     ctx.strokeStyle = P.dark; ctx.lineWidth = 3.5;
     ctx.beginPath(); ctx.moveTo(-22, -13); ctx.lineTo(-8, -8); ctx.moveTo(22, -13); ctx.lineTo(8, -8); ctx.stroke();
   }
   ctx.strokeStyle = P.dark; ctx.lineWidth = 2.6;
   ctx.beginPath(); ctx.moveTo(-11, 11); ctx.quadraticCurveTo(0, 19, 11, 11); ctx.stroke();
-  if (o.predator || o.evil) {
+  if (o.evil) {
     ctx.fillStyle = '#fff';
     ctx.beginPath();
     ctx.moveTo(-7, 13.5); ctx.lineTo(-3, 15); ctx.lineTo(-5.5, 20);

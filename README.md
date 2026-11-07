@@ -13,7 +13,7 @@ sound is synthesized, so once it's installed it works offline.
 | **D-pad** (bottom left) | Swim up, down, left and right |
 | **SUCK** (middle of the d-pad) | Hold it to suck up fish in front of you |
 | **Axolotl faces** (top right) | Change color any time: orange, black, blue, pink, gold |
-| **Predator** button (tank 3) | Shape shift into a spiky axolotl predator |
+| **Shark** button (tank 3) | Shape shift into a shark (tap again to turn back) |
 | ❚❚ | Pause, restart the tank, go home, sound on/off |
 
 You can hold SUCK with one finger and steer with another. On a computer, use the arrow keys or WASD,
@@ -29,7 +29,7 @@ You can hold SUCK with one finger and steer with another. On a computer, use the
 1. **Minnow Meadow**: quick little minnows that dart away from you.
 2. **Big Fish Reef**: big fish that wriggle and fight the suction.
 3. **Evil Axolotl Cave**: evil axolotls chase and bite you. They're too strong to suck, so tap
-   **Predator**, shape shift, and they'll run away scared.
+   **Shark** to turn into a shark. Now they run away scared, and you can chomp them up.
 4. **Rubber Ducky Bath**: rubber duckies float on the surface. Swim to the top and suck them down.
 5. **The Giant Hand**: a kid's hand reaches into the tank and slams down. If it smushes you, it picks
    you up and drops you back in. When it lands on the sand, suck it! The hand yanks out and yells

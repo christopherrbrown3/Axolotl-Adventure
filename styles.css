@@ -92,12 +92,13 @@ button {
   right: calc(var(--safe-r) + 28px); bottom: calc(var(--safe-b) + 34px);
   width: clamp(110px, 16vmin, 150px); height: clamp(110px, 16vmin, 150px); border-radius: 50%;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
-  background: radial-gradient(circle at 40% 35%, #b25bff, #5a1a9a);
+  background: radial-gradient(circle at 40% 35%, #6fb6f2, #1d4f8c);
   border: 5px solid #fff; box-shadow: 0 6px 0 rgba(0, 0, 0, 0.25);
   font-weight: 900; font-size: 17px;
 }
 #shift-btn canvas { pointer-events: none; }
-#shift-btn.active { background: radial-gradient(circle at 40% 35%, #ff8a8a, #a11a2a); }
+#shift-btn .shift-icon { display: flex; }
+#shift-btn.active { background: radial-gradient(circle at 40% 35%, #ffc2d4, #e0567a); }
 #shift-btn.pulse { animation: pulse 0.9s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.13); } }
 

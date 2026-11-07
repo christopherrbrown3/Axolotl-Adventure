@@ -1,7 +1,7 @@
 // Player, creatures, piranha plants, magic pizza and the portal.
 import { SURFACE_Y, floorAt, clamp, approach, lerp, rand } from './world.js';
-import { TAU, drawAxolotl, EVIL_PALETTE, ell } from './draw.js';
-import { drawFish, drawDuck, drawPizza, drawPlant, drawPortal } from './art.js';
+import { TAU, drawAxolotl, EVIL_PALETTE } from './draw.js';
+import { drawFish, drawDuck, drawPizza, drawPlant, drawPortal, drawShark, SHARK_MOUTH } from './art.js';
 import * as FX from './particles.js';
 
 export class Player {
@@ -10,14 +10,21 @@ export class Player {
     this.r = 30; this.hp = 100; this.maxHp = 100; this.inv = 0;
     this.mouthOpen = 0; this.swim = 0; this.tilt = 0; this.gulp = 0;
     this.predator = false; this.pred = 0; this.blinkT = 2.5; this.blink = 0; this.t = 0;
-    this.squash = 0; this.bellyUp = false; this.scaleMul = 1; this.spin = 0;
+    this.squash = 0; this.bellyUp = false; this.scaleMul = 1; this.spin = 0; this.pop = 0;
   }
 
+  // pred eases 0 -> 1 while turning into the shark, so the shark grows in smoothly.
   get scale() { return (1 + this.pred * 0.35) * this.scaleMul; }
+
+  // Flip between axolotl and shark with a quick size "pop".
+  setShark(on) {
+    this.predator = on;
+    this.pop = 1;
+  }
 
   mouthPos() {
     const s = this.scale, c = Math.cos(this.tilt), sn = Math.sin(this.tilt);
-    const lx = 61 * s, ly = 7 * s;
+    const lx = (this.predator ? SHARK_MOUTH.x : 61) * s, ly = (this.predator ? SHARK_MOUTH.y : 7) * s;
     return { x: this.x + this.facing * (lx * c - ly * sn), y: this.y + lx * sn + ly * c };
   }
 
@@ -46,7 +53,8 @@ export class Player {
     const s = this.scale;
     if (this.x < 50) { this.x = 50; this.vx = Math.max(0, this.vx); }
     if (this.x > game.W - 50) { this.x = game.W - 50; this.vx = Math.min(0, this.vx); }
-    const top = SURFACE_Y + 22 * s, bottom = floorAt(this.x) - 22 * s;
+    // The shark may swim right up to the surface so its fin sticks out of the water.
+    const top = SURFACE_Y + (this.predator ? 26 : 22) * s, bottom = floorAt(this.x) - (this.predator ? 40 : 22) * s;
     if (this.y < top) { this.y = top; this.vy = Math.max(0, this.vy); }
     if (this.y > bottom) { this.y = bottom; this.vy = Math.min(0, this.vy); }
     if (ax) this.facing = ax;
@@ -56,24 +64,20 @@ export class Player {
     this.pred = approach(this.pred, this.predator ? 1 : 0, 5, dt);
     this.gulp = Math.max(0, this.gulp - dt * 2.5);
     this.inv = Math.max(0, this.inv - dt);
+    this.pop = Math.max(0, this.pop - dt * 2.5);
     this.updateBlink(dt);
   }
 
   draw(ctx, palette) {
     ctx.save();
     if (this.inv > 0 && !this.bellyUp && Math.floor(this.inv * 12) % 2 === 0) ctx.globalAlpha = 0.4;
-    if (this.pred > 0.05) {
-      const r = 90 * this.scale;
-      const g = ctx.createRadialGradient(this.x, this.y, 10, this.x, this.y, r);
-      g.addColorStop(0, `rgba(255,60,90,${0.32 * this.pred})`);
-      g.addColorStop(1, 'rgba(255,60,90,0)');
-      ctx.fillStyle = g; ell(ctx, this.x, this.y, r, r); ctx.fill();
-    }
-    drawAxolotl(ctx, this.x, this.y, {
-      palette, t: this.t, scale: this.scale, facing: this.facing, tilt: this.tilt + this.spin,
-      swim: this.swim, mouth: this.mouthOpen, predator: this.pred, gulp: this.gulp,
-      blink: this.blink, squash: this.squash, bellyUp: this.bellyUp,
-    });
+    const scale = this.scale * (1 + Math.sin(this.pop * Math.PI) * 0.25);
+    const look = {
+      t: this.t, scale, facing: this.facing, tilt: this.tilt + this.spin,
+      swim: this.swim, mouth: this.mouthOpen, gulp: this.gulp, blink: this.blink,
+    };
+    if (this.predator) drawShark(ctx, this.x, this.y, look);
+    else drawAxolotl(ctx, this.x, this.y, { ...look, palette, squash: this.squash, bellyUp: this.bellyUp });
     ctx.restore();
   }
 }

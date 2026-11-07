@@ -47,7 +47,7 @@ export const LEVELS = [
     creatures: { fish: 9 }, plants: [750, 1400, 2050, 2650], plantSpeed: 0.95, plantReach: 280, seed: 202,
   },
   {
-    name: 'Evil Axolotl Cave', goal: 'Turn into a PREDATOR to suck up the evil axolotls!', theme: 'cave', width: 3200,
+    name: 'Evil Axolotl Cave', goal: 'Turn into a SHARK to suck up the evil axolotls!', theme: 'cave', width: 3200,
     creatures: { evil: 6 }, plants: [1000, 1900, 2600], plantSpeed: 1, plantReach: 280, shapeshift: true, seed: 303,
   },
   {

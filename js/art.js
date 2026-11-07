@@ -307,3 +307,131 @@ export function drawHand(ctx, h, t) {
   ctx.beginPath(); ctx.arc(-30, -6, 12, 0.3, 2.8); ctx.moveTo(42, -6); ctx.arc(30, -6, 12, 0.3, 2.8); ctx.stroke();
   ctx.restore();
 }
+
+// ---------- Shark (the tank-3 shape shift) ----------
+const SHARK = { top: '#6b8aa3', dark: '#4b667d', belly: '#eef3f6', mouth: '#4a0c1d', teeth: '#ffffff' };
+const JAW_HINGE = { x: 46, y: 12 };
+/** Where the shark's suction comes from, in its local space (before scale). */
+export const SHARK_MOUTH = { x: 72, y: 13 };
+
+function sharkBody(ctx) {
+  ctx.beginPath();
+  ctx.moveTo(80, 6);
+  ctx.bezierCurveTo(74, -16, 34, -26, -8, -22);
+  ctx.bezierCurveTo(-38, -18, -56, -8, -64, -3);
+  ctx.lineTo(-64, 4);
+  ctx.bezierCurveTo(-48, 12, -16, 22, 14, 23);
+  ctx.bezierCurveTo(30, 23, 40, 22, 44, 21);
+  ctx.lineTo(JAW_HINGE.x, JAW_HINGE.y);
+  ctx.quadraticCurveTo(62, 12, 80, 6);
+  ctx.closePath();
+}
+
+function sharkTeeth(ctx, x0, x1, y0, y1, dir) {
+  ctx.fillStyle = SHARK.teeth;
+  ctx.beginPath();
+  for (let x = x0; x < x1 - 3; x += 6) {
+    const u = (x - x0) / (x1 - x0), y = y0 + (y1 - y0) * u;
+    ctx.moveTo(x, y); ctx.lineTo(x + 5, y + (y1 - y0) * (5 / (x1 - x0))); ctx.lineTo(x + 2.5, y + dir * 6);
+  }
+  ctx.fill();
+}
+
+/**
+ * Side-view cartoon shark facing right. o: { t, scale, facing, tilt, swim(0..1), mouth(0..1 open), gulp, blink }
+ */
+export function drawShark(ctx, x, y, o) {
+  const t = o.t || 0, s = o.scale || 1, swim = o.swim ?? 0.3, open = o.mouth || 0, C = SHARK;
+  const freq = 2.5 + swim * 6, amp = 0.15 + swim * 0.3;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(s * (o.facing || 1), s);
+  ctx.rotate((o.tilt || 0) + Math.sin(t * freq - 1) * 0.03);
+
+  // far pectoral fin
+  ctx.fillStyle = C.dark;
+  ctx.beginPath(); ctx.moveTo(32, 12); ctx.quadraticCurveTo(24, 26, 12, 36); ctx.quadraticCurveTo(18, 24, 14, 16); ctx.closePath(); ctx.fill();
+
+  // tail fin, sweeping side to side
+  ctx.save();
+  ctx.translate(-60, 0);
+  ctx.rotate(Math.sin(t * freq) * amp);
+  ctx.fillStyle = C.top;
+  ctx.beginPath();
+  ctx.moveTo(6, -6);
+  ctx.quadraticCurveTo(-18, -18, -44, -42);
+  ctx.quadraticCurveTo(-34, -12, -26, 0);
+  ctx.quadraticCurveTo(-32, 12, -38, 28);
+  ctx.quadraticCurveTo(-16, 14, 6, 6);
+  ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  // small rear fins and the big dorsal fin
+  ctx.fillStyle = C.dark;
+  ctx.beginPath();
+  ctx.moveTo(-38, -13); ctx.lineTo(-48, -26); ctx.lineTo(-28, -16);
+  ctx.moveTo(-34, 14); ctx.lineTo(-46, 25); ctx.lineTo(-26, 16);
+  ctx.fill();
+  ctx.fillStyle = C.top;
+  ctx.beginPath(); ctx.moveTo(-20, -18); ctx.quadraticCurveTo(-2, -32, 4, -58); ctx.quadraticCurveTo(8, -34, 24, -22); ctx.closePath(); ctx.fill();
+
+  // body with a white belly
+  sharkBody(ctx); ctx.fillStyle = C.top; ctx.fill();
+  ctx.save();
+  sharkBody(ctx); ctx.clip();
+  ell(ctx, 4, 25, 76, 13); ctx.fillStyle = C.belly; ctx.fill();
+  ell(ctx, 10, -14, 40, 6); ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fill();
+  ctx.restore();
+  if (o.gulp > 0.01) { ell(ctx, 0, 18, 18 + 8 * o.gulp, 6 + 9 * o.gulp); ctx.fillStyle = C.belly; ctx.fill(); }
+
+  // gill slits
+  ctx.strokeStyle = C.dark; ctx.lineWidth = 2; ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (const gx of [28, 33, 38]) { ctx.moveTo(gx, -3); ctx.quadraticCurveTo(gx - 3, 4, gx, 11); }
+  ctx.stroke();
+
+  // jaw: closed it is a toothy grin, open it drops to show both rows of teeth
+  const ang = open * 0.75, H = JAW_HINGE;
+  const rot = (px, py) => {
+    const dx = px - H.x, dy = py - H.y, c = Math.cos(ang), sn = Math.sin(ang);
+    return [H.x + dx * c - dy * sn, H.y + dx * sn + dy * c];
+  };
+  if (open > 0.05) {
+    const [cx, cy] = rot(76, 10);
+    ctx.fillStyle = C.mouth;
+    ctx.beginPath(); ctx.moveTo(H.x, H.y); ctx.quadraticCurveTo(62, 12, 80, 6); ctx.lineTo(cx, cy); ctx.closePath(); ctx.fill();
+    sharkTeeth(ctx, 52, 78, 11, 7, 1);
+  }
+  ctx.save();
+  ctx.translate(H.x, H.y); ctx.rotate(ang); ctx.translate(-H.x, -H.y);
+  ctx.fillStyle = C.belly;
+  ctx.beginPath(); ctx.moveTo(H.x, H.y); ctx.quadraticCurveTo(60, 13, 76, 10); ctx.quadraticCurveTo(74, 18, 64, 20); ctx.lineTo(44, 21); ctx.closePath(); ctx.fill();
+  if (open > 0.05) sharkTeeth(ctx, 52, 74, 13, 11, -1);
+  ctx.restore();
+  if (open <= 0.05) {
+    ctx.strokeStyle = C.dark; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.moveTo(H.x, H.y); ctx.quadraticCurveTo(62, 12, 78, 7); ctx.stroke();
+    sharkTeeth(ctx, 54, 74, 12, 9, 1);
+  }
+
+  // near pectoral fin
+  ctx.save();
+  ctx.translate(26, 14);
+  ctx.rotate(Math.sin(t * 3) * 0.12);
+  ctx.fillStyle = C.top;
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(-12, 16, -30, 30); ctx.quadraticCurveTo(-20, 14, -22, 4); ctx.closePath(); ctx.fill();
+  ctx.restore();
+
+  // nostril, eye and a fierce brow
+  ell(ctx, 71, -2, 2, 1.2); ctx.fillStyle = C.dark; ctx.fill();
+  if ((o.blink || 0) > 0.6) {
+    ctx.strokeStyle = '#111'; ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.moveTo(54, -6); ctx.lineTo(63, -6); ctx.stroke();
+  } else {
+    ell(ctx, 58, -6, 4.8, 4.8); ctx.fillStyle = '#111'; ctx.fill();
+    ell(ctx, 59.6, -7.6, 1.7, 1.7); ctx.fillStyle = '#fff'; ctx.fill();
+  }
+  ctx.strokeStyle = '#2c3d4d'; ctx.lineWidth = 3.4; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(50, -15); ctx.lineTo(64, -10); ctx.stroke();
+  ctx.restore();
+}

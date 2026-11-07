@@ -1,6 +1,6 @@
 // DOM overlays: HUD, color-face buttons, toasts, level cards, title/pause/win screens.
 import { PALETTES, COLOR_ORDER, EVIL_PALETTE, drawFace } from './draw.js';
-import { FISH_LOOKS, drawFish, drawDuck } from './art.js';
+import { FISH_LOOKS, drawFish, drawDuck, drawShark } from './art.js';
 import { LEVELS } from './levels.js';
 
 const $ = (id) => document.getElementById(id);
@@ -41,7 +41,14 @@ export class UI {
     this.colorButtons = [];
     this.iconKind = null;
     this.toastTimer = 0;
-    this.shiftBtn.prepend(faceCanvas({ ...PALETTES.orange, body: '#c0392b', belly: '#e17055', gill: '#6c1d1d', dark: '#3d0b0b' }, 64, { predator: true }));
+    this.shiftIcon = this.shiftBtn.querySelector('.shift-icon');
+    this.shiftLabel = this.shiftBtn.querySelector('.shift-label');
+    const [shark, sctx] = makeCanvas(84, 60);
+    drawShark(sctx, 47, 33, { t: 0.5, scale: 0.44, facing: 1, swim: 0.3 });
+    this.sharkIcon = shark;
+    this.colorKey = 'orange';
+    this.sharkOn = false;
+    this.renderShift();
   }
 
   savedColor() { const c = store.get('axo-color', 'orange'); return PALETTES[c] ? c : 'orange'; }
@@ -68,6 +75,8 @@ export class UI {
 
   setColor(key) {
     for (const b of this.colorButtons) b.classList.toggle('selected', b.dataset.color === key);
+    this.colorKey = key;
+    this.renderShift();
   }
 
   buildTanks(onTank) {
@@ -129,9 +138,17 @@ export class UI {
     this.toastTimer = setTimeout(() => el.classList.remove('show'), secs * 1000);
   }
 
+  // The shape-shift button shows what you will turn into: a shark, or your axolotl again.
   setShiftActive(on) {
+    this.sharkOn = on;
+    this.renderShift();
+  }
+  renderShift() {
+    const on = this.sharkOn;
     this.shiftBtn.classList.toggle('active', on);
-    this.shiftBtn.querySelector('span').textContent = on ? 'Be Cute' : 'Predator';
+    this.shiftIcon.replaceChildren(on ? faceCanvas(PALETTES[this.colorKey], 64) : this.sharkIcon);
+    this.shiftLabel.textContent = on ? 'Axolotl' : 'Shark';
+    this.shiftBtn.setAttribute('aria-label', on ? 'Turn back into an axolotl' : 'Turn into a shark');
   }
   pulseShift(on) { this.shiftBtn.classList.toggle('pulse', on); }
   fade(on) { this.fadeEl.classList.toggle('on', on); }
